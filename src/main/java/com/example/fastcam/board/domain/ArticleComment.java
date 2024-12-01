@@ -1,9 +1,7 @@
 package com.example.fastcam.board.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -15,25 +13,22 @@ import java.util.Objects;
 @Getter
 @ToString
 @Table(indexes =  {
-        @Index(columnList = "title"),
-        @Index(columnList = "hashtag"),
         @Index(columnList = "createdAt"),
         @Index(columnList = "createdBy"),
+        @Index(columnList = "content")
 })
 @Entity
-public class Article {
+public class ArticleComment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Setter
-    @Column(nullable = false)
-    private String title;
+    @ManyToOne(optional = false)
+    private Article article;
     @Setter
-    @Column(nullable = false, length = 10000)
+    @Column(nullable = false, length = 500)
     private String content;
-    @Setter
-    private String hashtag;
 
     @CreatedDate
     @Column(nullable = false)
@@ -48,25 +43,23 @@ public class Article {
     @Column(nullable = false, length = 100)
     private String modifiedBy;
 
-    protected Article() {
+    protected ArticleComment() {
     }
 
-    private Article(String title, String content, String hashtag) {
-        this.title = title;
+    private ArticleComment(Article article, String content){
+        this.article = article;
         this.content = content;
-        this.hashtag = hashtag;
     }
 
-    public static Article of(String title, String content, String hashtag) {
-        return new Article(title, content, hashtag);
+    public static ArticleComment of(Article article, String content) {
+        return new ArticleComment(article, content);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Article article = (Article) o;
-        return id != null && id.equals(article.id);
+        if (!(o instanceof ArticleComment that)) return false;
+        return id != null && id.equals(that.id);
     }
 
     @Override
